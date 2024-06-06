@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Color - Tenserflow</title>
+    <style>
+      body {
+        background-image: linear-gradient(
+          45deg,
+          #ff9a9e 0%,
+          #fad0c4 99%,
+          #fad0c4 100%
+        );
+
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        color: #333;
+      }
+
+      h1 {
+        color: #fffafa;
+        margin-bottom: 30px;
+        font-size: 35px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        font-family: "Cinzel", serif;
+        font-optical-sizing: auto;
+        font-weight: 450;
+        font-style: normal;
+      }
+
+      #uploadForm {
+        padding: 20px;
+        background: linear-gradient(
+          90deg,
+          rgba(176, 165, 66, 1) 0%,
+          rgba(98, 50, 67, 1) 0%,
+          rgba(46, 171, 236, 1) 100%
+        );
+
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      input[type="file"] {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 2px dashed #007bff;
+        border-radius: 6px;
+        width: 100%;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+      }
+
+      input[type="file"]:hover {
+        border-color: #0056b3;
+      }
+
+      button {
+        padding: 12px 24px;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+
+      #loading {
+        display: none;
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #007bff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 10px auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      #colorResult {
+        margin-top: 20px;
+        animation: fadeIn 1s ease-in-out;
+        text-align: center;
+      }
+
+      .color-box {
+        width: 100px;
+        height: 100px;
+        margin: 10px auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        animation: grow 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes grow {
+        from {
+          transform: scale(0.5);
+        }
+        to {
+          transform: scale(1);
+        }
+      }
+
+      footer {
+        margin-top: 20px;
+        padding: 10px 0;
+        width: 100%;
+        text-align: center;
+        background-color: #333;
+        color: #fff;
+      }
+      input[type="file"] {
+        background-color: #636766;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Upload an Image with Dresses to Get Color Suggestions</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="file" id="fileInput" accept="image/*" required />
+      <button type="submit">Upload</button>
+    </form>
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+    <div id="colorResult"></div>
+
+    <script>
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          document.getElementById("loading").style.display = "block";
+          document.getElementById("colorResult").innerHTML = "";
+
+          const formData = new FormData();
+          const fileField = document.querySelector('input[type="file"]');
+
+          formData.append("file", fileField.files[0]);
+
+          fetch("/upload", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("loading").style.display = "none";
+
+              if (data.error) {
+                document.getElementById("colorResult").innerText = data.error;
+              } else {
+                document.getElementById("colorResult").innerHTML = `
+                        <p>Predicted Label: ${data.label}</p>
+                        <p>Dominant Color: rgb(${data.dominant_color.join(
+                          ", "
+                        )})</p>
+                        <div class="color-box" style="background-color: rgb(${data.dominant_color.join(
+                          ", "
+                        )});"></div>
+                        <p>Suggested Pant Color: rgb(${data.pant_color.join(
+                          ", "
+                        )})</p>
+                        <div class="color-box" style="background-color: rgb(${data.pant_color.join(
+                          ", "
+                        )});"></div>
+                    `;
+              }
+            })
+            .catch((error) => {
+              document.getElementById("loading").style.display = "none";
+              console.error("Error:", error);
+            });
+        });
+    </script>
+  </body>
+</html>

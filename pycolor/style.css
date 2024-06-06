@@ -1,0 +1,36 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+.wrapper {
+  background: url(dress.jpg) no-repeat;
+  background-size: cover;
+  height: 100vh;
+}
+.navbar {
+  height: 80px;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+}
+.navbar ul {
+  float: right;
+  margin-right: 20px;
+}
+.navbar ul li {
+  list-style: none;
+  margin: 0 8px;
+  display: inline-block;
+  line-height: 80px;
+}
+.navbar ul li a {
+  text-decoration: none;
+  color: white;
+  font-size: 20px;
+  font-family: "roboto", sans-serif;
+}
+.navbar h1 {
+  color: white;
+  font-size: 25px;
+  display: inline-block;
+  font-family: "roboto", sans-serif;
+}
